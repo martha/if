@@ -78,7 +78,6 @@ export default function SceneManager(canvas) {
         const child1 = new SceneImage(scene, '/IMG_3757.jpeg', baseSceneImage, [-100, 0, 0]);
         const child2 = new SceneImage(scene, '/IMG_3758.jpeg', baseSceneImage, [100, 0, 0]);
         const sceneSubjects = [
-            // new GeneralLights(scene),
             baseSceneImage,
             child1,
             child2
@@ -88,7 +87,6 @@ export default function SceneManager(canvas) {
     }
 
     this.update = function() {
-        // update the picking ray with the camera and pointer position
         raycaster.setFromCamera( pointer, camera );
 
         const elapsedTime = clock.getElapsedTime();
@@ -110,7 +108,7 @@ export default function SceneManager(canvas) {
 
         renderer.render(scene, camera);
 
-        TWEEN.update(elapsedTime);
+        TWEEN.update();
     }
 
     this.onWindowResize = function() {
@@ -135,21 +133,15 @@ export default function SceneManager(canvas) {
         const clickables = sceneSubjects.map(subj => subj.clickable).filter(subj => subj);
         const intersects = raycaster.intersectObjects(clickables);
         if (intersects.length) {
-            // console.log(intersects[0].object);
-            // intersects[0].object.material.color.set(0x0000ff);
             const clickedObject = intersects[0].object;
-            // camera.position.set(clickedObject.position.x, clickedObject.position.y, 100);
-            console.log(clickedObject);
 
             const coords = { x: camera.position.x, y: camera.position.y, z: camera.position.z };
-            console.log(coords);
             new TWEEN.Tween(coords)
               .to({ x: clickedObject.position.x, y: clickedObject.position.y, z: 300 })
-              .onUpdate(() =>
-                camera.position.set(coords.x, coords.y, coords.z)
-              )
+              .onUpdate(() => {
+                camera.position.set(coords.x, coords.y, coords.z);
+              })
               .start();
-            
         }
     }
 }

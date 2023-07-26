@@ -27,7 +27,6 @@ export default function SceneImage(scene, pathToImage, parent, coords) {
         scene.add( sprite );
     }
 
-
     this.update = function(time) {
         // empty function
     }
