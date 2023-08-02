@@ -80,7 +80,6 @@ export default function SceneManager(canvas) {
         const child2 = new SceneImage(scene, '/IMG_3758.jpeg', baseSceneImage, [], [100, 0, 0], false);
         baseSceneImage.setChildren([child1, child2]);
 
-        // todo - making this change changed the clickability of the other image, why?
         // const grandchild = new SceneImage(scene, '/IMG_3997.jpeg', child2, [], [100, 0, 0]);
         // child2.setChildren([grandchild]);
 
@@ -129,13 +128,14 @@ export default function SceneManager(canvas) {
         const intersects = raycaster.intersectObjects(imageTree.clickables);
         if (intersects.length) {
             const clickedObject = intersects[0].object;
-            imageTree.selectImage(clickedObject.uuid);
-
             const coords = { x: camera.position.x, y: camera.position.y, z: camera.position.z };
             new TWEEN.Tween(coords)
               .to({ x: clickedObject.position.x, y: clickedObject.position.y, z: 300 })
               .onUpdate(() => {
                 camera.position.set(coords.x, coords.y, coords.z);
+              })
+              .onComplete(() => {
+                imageTree.selectImage(clickedObject.uuid);
               })
               .start();
         }
