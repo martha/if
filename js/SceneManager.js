@@ -1,5 +1,6 @@
 import * as THREE from 'three';
-import SceneImage from './SceneImage.js'
+import { SceneImage } from './SceneImage.js'
+import { ImageTree } from './ImageTree.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import * as TWEEN from "@tweenjs/tween.js";
 
@@ -18,7 +19,7 @@ export default function SceneManager(canvas) {
     const renderer = buildRenderer(screenDimensions);
     const camera = buildCamera(screenDimensions);
     const controls = buildControls(renderer);
-    const sceneSubjects = createSceneSubjects(scene);
+    const imageTree = createImageTree(scene);
 
     function buildScene() {
         const scene = new THREE.Scene();
@@ -72,43 +73,19 @@ export default function SceneManager(canvas) {
         return controls;
     }
 
-    function createSceneSubjects(scene) {
-        const baseSceneImage = new SceneImage(scene, '/IMG_3756.jpeg');
+    function createImageTree(scene) {
+        const baseSceneImage = new SceneImage(scene, '/IMG_3756.jpeg', null, [], null, true);
         // TODO!: make these the correct coords
-        const child1 = new SceneImage(scene, '/IMG_3757.jpeg', baseSceneImage, [-100, 0, 0]);
-        const child2 = new SceneImage(scene, '/IMG_3758.jpeg', baseSceneImage, [100, 0, 0]);
-        const sceneSubjects = [
-            baseSceneImage,
-            child1,
-            child2
-        ];
+        const child1 = new SceneImage(scene, '/IMG_3757.jpeg', baseSceneImage, [], [-100, 0, 0], false);
+        const child2 = new SceneImage(scene, '/IMG_3758.jpeg', baseSceneImage, [], [100, 0, 0], false);
+        baseSceneImage.setChildren([child1, child2]);
 
-        return sceneSubjects;
-    }
+        // todo - making this change changed the clickability of the other image, why?
+        // const grandchild = new SceneImage(scene, '/IMG_3997.jpeg', child2, [], [100, 0, 0]);
+        // child2.setChildren([grandchild]);
 
-    this.update = function() {
-        raycaster.setFromCamera( pointer, camera );
-
-        const elapsedTime = clock.getElapsedTime();
-
-        for (let i = 0; i < sceneSubjects.length; i++) {
-            const sceneSubject = sceneSubjects[i];
-            sceneSubject.update(elapsedTime);
-            if (sceneSubject.clickable) {
-                // TODO: change colors
-                // TODO: add pointer mouse
-                const intersection = raycaster.intersectObject(sceneSubject.clickable);
-                if (intersection.length) {
-                    sceneSubject.clickable.material.color.set(0xff0000);
-                } else {
-                    sceneSubject.clickable.material.color.set(0x00ff00);
-                }
-            }
-        }
-
-        renderer.render(scene, camera);
-
-        TWEEN.update();
+        const tree = new ImageTree(baseSceneImage);
+        return tree;
     }
 
     this.onWindowResize = function() {
@@ -129,11 +106,30 @@ export default function SceneManager(canvas) {
         pointer.y = - ( y / window.innerHeight ) * 2 + 1;
     }
 
+    this.update = function() {
+        raycaster.setFromCamera( pointer, camera );
+
+        for (const clickable of imageTree.clickables) {
+            // TODO: change colors
+            // TODO: add pointer mouse
+            const intersection = raycaster.intersectObject(clickable);
+            if (intersection.length) {
+                clickable.material.color.set(0xff0000);
+            } else {
+                clickable.material.color.set(0x00ff00);
+            }
+        }
+
+        renderer.render(scene, camera);
+
+        TWEEN.update();
+    }
+
     this.onClick = function() {
-        const clickables = sceneSubjects.map(subj => subj.clickable).filter(subj => subj);
-        const intersects = raycaster.intersectObjects(clickables);
+        const intersects = raycaster.intersectObjects(imageTree.clickables);
         if (intersects.length) {
             const clickedObject = intersects[0].object;
+            imageTree.selectImage(clickedObject.uuid);
 
             const coords = { x: camera.position.x, y: camera.position.y, z: camera.position.z };
             new TWEEN.Tween(coords)

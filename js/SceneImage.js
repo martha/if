@@ -1,33 +1,48 @@
 import * as THREE from 'three';
 
-export default function SceneImage(scene, pathToImage, parent, coords) {
-    // TODO - i haven't achieved the depth that I had in mind
+export function SceneImage(scene, pathToImage, parent, children, coords, showImage) {
+    this.pathToImage = pathToImage;
+    this.parent = parent;
+    this.children = children;
+    this.siblings = [];
+    this.showImage = showImage;
+    if (this.parent && this.parent.children) {
+        this.siblings = this.parent.children; // todo - make more elegant, explain that sibs includes self
+    }
 
     this.clickable = null;
 
-    if (parent && coords) {
-        const geometry1 = new THREE.BoxGeometry( 100, 100, 1 );
-        const material1 = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-        const cube1 = new THREE.Mesh( geometry1, material1 );
-        scene.add( cube1 );
-        cube1.position.set(...coords)
-        this.clickable = cube1;
+    this.update = function() {
+        // console.log('calling this.update on ' + this.pathToImage);
+        
+        if (showImage) {
+            // console.log('its true');
+            const map = new THREE.TextureLoader().load( pathToImage );
+            const material = new THREE.SpriteMaterial( { 
+                map: map ,
+                color: 0xffffff,
+                opacity: 1,
+                transparent: false
+                // TODO: why is opacity still wonky?
+            } );
+            const sprite = new THREE.Sprite( material );
+            sprite.scale.set(400, 300, 1);  // TODO: make it fill the whole screen on init
+            scene.add( sprite );
 
-    } else {
-        const map = new THREE.TextureLoader().load( pathToImage );
-        const material = new THREE.SpriteMaterial( { 
-            map: map ,
-            color: 0xffffff,
-            opacity: 1,
-            transparent: false
-            // TODO: why is opacity still wonky?
-        } );
-        const sprite = new THREE.Sprite( material );
-        sprite.scale.set(400, 300, 1);  // TODO: make it fill the whole screen on init
-        scene.add( sprite );
+        } else {
+            // console.log('its false');
+            const geometry1 = new THREE.BoxGeometry( 100, 100, 1 );
+            const material1 = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+            const cube1 = new THREE.Mesh( geometry1, material1 );
+            scene.add( cube1 );
+            cube1.position.set(...coords)
+            this.clickable = cube1;
+        }
     }
 
-    this.update = function(time) {
-        // empty function
+    this.setChildren = function(children) {  // todo: explain why this is needed
+        this.children = children;
     }
+
+    this.update();
 }
