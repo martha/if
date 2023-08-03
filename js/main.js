@@ -1,6 +1,7 @@
 import SceneManager from './SceneManager.js'
 
 const canvas = document.getElementById('canvas');
+sizeCanvas();
 const sceneManager = new SceneManager(canvas);
 bindEventListeners();
 render();
@@ -12,13 +13,16 @@ function bindEventListeners() {
 	resizeCanvas();	
 }
 
-function resizeCanvas() {
+function sizeCanvas() {
 	canvas.style.width = '100%';
 	canvas.style.height = '100vh';
 	
 	canvas.width = canvas.offsetWidth;
 	canvas.height = canvas.offsetHeight;
+}
 
+function resizeCanvas() {
+	sizeCanvas();
     sceneManager.onWindowResize();
 }
 
@@ -37,6 +41,3 @@ function render() {
     requestAnimationFrame(render);
     sceneManager.update();
 }
-
-
-// TODO: create a readme, crediting the organizing code

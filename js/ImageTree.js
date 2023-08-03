@@ -41,10 +41,22 @@ export function ImageTree(root) {
     this.traverseTree();
 }
 
-// TODO: make the base image fill the whole screen on init
-// todo: registration issues
-// todo: there is sometimes still a weird bug where the perspective camera gets off kilter, why does that happen?
-// todo: the image tree should be in charge of telling the camera where to look?
+// TODO: change colors of hover blocks (see google maps for design)
+// todo: add labels?
+// todo: make transition smoother
 
-// todo: make siblings clickable = navigable with little arrows
+// todo: make siblings clickable = navigable with little arrows. ... does this mean we need two trees?
 // todo: make ability to zoom back up to the parent level
+
+// TODO: create a readme, crediting the organizing code
+
+// todo: there is sometimes still a weird bug where the perspective camera gets off kilter, why does that happen?
+
+// todo: try an orthographic camera
+// todo: try three js keeping its object references
+
+// controls:
+// TODO: why is key control not enabled?
+// TODO: set maxDistance and minDistance it so that the close position never gets too close
+// TODO: use two finger scroll for horizontal mvt
+// TODO: scroll in to pointer
