@@ -1,10 +1,9 @@
 import * as THREE from 'three';
+import SpriteText from 'three-spritetext';
 
-export function SceneImage(scene, pathToImage, parent, scale, coords) {
-    this.pathToImage = pathToImage;
+export function SceneImage(scene, pathToImage, parent, scale, coords, label) {
     this.parent = parent;
     this.children = [];
-    this.clickable = null;
 
     this.setChildren = function(children) {
         // it is a doubly linked tree, so the parent has to know about its children,
@@ -13,27 +12,52 @@ export function SceneImage(scene, pathToImage, parent, scale, coords) {
         this.children = children;
     }
 
+    // initialize the image sprite
+    const map = new THREE.TextureLoader().load(pathToImage);
+    map.encoding = THREE.sRGBEncoding;
+    const spriteMaterial = new THREE.SpriteMaterial({
+        map: map ,
+    });
+    this.sprite = new THREE.Sprite(spriteMaterial);
+    this.sprite.scale.set(scale.x, scale.y, scale.z);
+
+    // initialize the clickable box
+    const geometry = new THREE.BoxGeometry( scale.x, scale.y, scale.z );
+    const clickableMaterial = new THREE.MeshBasicMaterial({
+        opacity: 0,
+        transparent: true
+    });
+    this.clickable = new THREE.Mesh( geometry, clickableMaterial );
+
+    // set their location if coords are provided
+    if (coords) {
+        this.sprite.position.set(coords.x, coords.y, coords.z);
+        this.clickable.position.set(coords.x, coords.y, coords.z);
+    }
+
+    if (label && coords) {
+        this.textSprite = new SpriteText(label);
+        this.textSprite.textHeight = 10; 
+        this.textSprite.color = "black";
+        this.textSprite.strokeWidth = 1;
+        this.textSprite.strokeColor = "white";
+        this.textSprite.position.set(coords.x, coords.y - 40, coords.z + 10);
+    }
+
     this.update = function(shouldShowImage, shouldBeClickable) {
         if (shouldShowImage) {
-            const map = new THREE.TextureLoader().load( this.pathToImage );
-            map.encoding = THREE.sRGBEncoding;
-            const material = new THREE.SpriteMaterial( { 
-                map: map ,
-            } );
-            const sprite = new THREE.Sprite( material );
-            sprite.scale.set(scale.x, scale.y, scale.z);
-            scene.add( sprite );
-            if (coords) {
-                sprite.position.set(coords.x, coords.y, coords.z)
-            }
-
+            scene.add(this.sprite);
         } else if (shouldBeClickable) {
-            const geometry = new THREE.BoxGeometry( scale.x, scale.y, 1 );
-            const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-            const cube = new THREE.Mesh( geometry, material );
-            scene.add( cube );
-            cube.position.set(coords.x, coords.y, coords.z)
-            this.clickable = cube;
+            scene.add(this.textSprite);
+            scene.add(this.clickable);
         }
+    }
+
+    this.hover = function() {
+        this.textSprite.color = "blue";
+    }
+
+    this.unhover = function() {
+        this.textSprite.color = "black";
     }
 }

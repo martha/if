@@ -13,6 +13,16 @@ export function ImageTree(root) {
         this.traverseTree(this.root);
     }
 
+    this.hoverImage = function(clickableUuid) {
+        const image = this.imageMap[clickableUuid];
+        image.hover();
+    }
+
+    this.unhoverImage = function(clickableUuid) {
+        const image = this.imageMap[clickableUuid];
+        image.unhover();
+    }
+
     this.traverseTree = function() {
         const allImages = [];
         const bfsStack = [this.root];
@@ -41,22 +51,26 @@ export function ImageTree(root) {
     this.traverseTree();
 }
 
-// TODO: change colors of hover blocks (see google maps for design)
-// todo: add labels?
-// todo: make transition smoother
+// todo: try an orthographic camera
 
-// todo: make siblings clickable = navigable with little arrows. ... does this mean we need two trees?
-// todo: make ability to zoom back up to the parent level
+// todo: make transition smoother - add more details on how to do this
+// - keep base image in background
+// - fade new image in while zooming, instead of abrupt transition
+
+// todo: make siblings clickable = navigable with little arrows. ... change sibling structure
+// todo: add ability to zoom back up to the parent level
 
 // TODO: create a readme, crediting the organizing code
 
 // todo: there is sometimes still a weird bug where the perspective camera gets off kilter, why does that happen?
 
-// todo: try an orthographic camera
+// TODO: set maxDistance and minDistance it so that the close position never gets too close
+
 // todo: try three js keeping its object references
 
 // controls:
 // TODO: why is key control not enabled?
-// TODO: set maxDistance and minDistance it so that the close position never gets too close
 // TODO: use two finger scroll for horizontal mvt
 // TODO: scroll in to pointer
+
+// todo: enable hover on label as well as image area

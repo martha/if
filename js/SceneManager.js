@@ -1,6 +1,5 @@
 import * as THREE from 'three';
-import { SceneImage } from './SceneImage.js'
-import { ImageTree } from './ImageTree.js'
+import { createImageTree } from './Arborist.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import * as TWEEN from "@tweenjs/tween.js";
 
@@ -19,7 +18,7 @@ export default function SceneManager(canvas) {
     const renderer = buildRenderer(screenDimensions);
     const camera = buildCamera(screenDimensions);
     const controls = buildControls(renderer);
-    const imageTree = createImageTree(scene);
+    const imageTree = createImageTree(scene, screenDimensions);
 
     function buildScene() {
         const scene = new THREE.Scene();
@@ -73,45 +72,6 @@ export default function SceneManager(canvas) {
         return controls;
     }
 
-    function createImageTree(scene) {
-        const initScale = new THREE.Vector3(screenDimensions.width, screenDimensions.width * 3/4, 1);
-        const baseSceneImage = new SceneImage(
-            scene,
-            '/IMG_3756.jpeg',
-            null,
-            initScale,
-            null
-        );
-
-        const treeScaleFactor = 1/12;
-        const childScale = new THREE.Vector3(initScale.x * treeScaleFactor, initScale.y * treeScaleFactor, 1);
-
-        const child1 = new SceneImage(
-            scene,
-            '/IMG_3757.jpeg',
-            baseSceneImage,
-            childScale,
-            new THREE.Vector3(-125, 40, 0)
-        );
-
-        const child2 = new SceneImage(
-            scene,
-            '/IMG_3758.jpeg',
-            baseSceneImage,
-            childScale,
-            new THREE.Vector3(-240, 135, 0)
-        );
-
-        baseSceneImage.setChildren([child1, child2]);
-
-        const grandchildScale = new THREE.Vector3(childScale.x * treeScaleFactor, childScale.y * treeScaleFactor, 1);
-        const grandchild = new SceneImage(scene, '/IMG_3997.jpeg', child2, grandchildScale, new THREE.Vector3(0, 0, 0));
-        child2.setChildren([grandchild]);
-
-        const tree = new ImageTree(baseSceneImage);
-        return tree;
-    }
-
     this.onWindowResize = function() {
         const { width, height } = canvas;
 
@@ -147,9 +107,9 @@ export default function SceneManager(canvas) {
         // iterate through each of the currently clickable objects and check if it's in the intersection
         for (const clickable of imageTree.clickables) {
             if (intersectObjects.indexOf(clickable) >= 0) {
-                clickable.material.color.set(0xff0000);
+                imageTree.hoverImage(clickable.uuid);
             } else {
-                clickable.material.color.set(0x00ff00);
+                imageTree.unhoverImage(clickable.uuid);
             }
         }
 
