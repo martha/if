@@ -51,6 +51,8 @@ export default function SceneManager(canvas) {
         const nearPlane = 1;
         const farPlane = 1000; 
         const camera = new THREE.PerspectiveCamera(fieldOfView, aspectRatio, nearPlane, farPlane);
+        // todo - explore orthographic?
+        // const camera = new THREE.OrthographicCamera( width / - 2, width / 2, height / 2, height / - 2, 1, 1000 );
         camera.position.set( 0, 0, 600 );
         camera.lookAt( 0, 0, 0 );
 
@@ -122,16 +124,31 @@ export default function SceneManager(canvas) {
         const intersects = raycaster.intersectObjects(imageTree.clickables);
         if (intersects.length) {
             const clickedObject = intersects[0].object;
-            const coords = { x: camera.position.x, y: camera.position.y, z: camera.position.z };
+
+            const coords = {
+                x: camera.position.x,
+                y: camera.position.y,
+                z: camera.position.z,
+                opacity: 0.0,
+            };
+            const target = {
+                x: clickedObject.position.x,
+                y: clickedObject.position.y,
+                z: camera.position.z * 1/5,
+                opacity: 1.0,
+            }
             const speed = 700;
+
+            // todo - the 1/5 constant may need to be fixed, it should be related to the Arborist
             new TWEEN.Tween(coords)
-              .to({ x: clickedObject.position.x, y: clickedObject.position.y, z: 100 }, speed)
-              .onUpdate(() => {
-                camera.position.set(coords.x, coords.y, coords.z);
-              })
-              .onComplete(() => {
+              .to(target, speed)
+              .onStart(() => {
                 scene.clear();
                 imageTree.selectImage(clickedObject.uuid);
+              })
+              .onUpdate(() => {
+                camera.position.set(coords.x, coords.y, coords.z);
+                imageTree.setImageOpacity(clickedObject.uuid, coords.opacity);
               })
               .start();
         }

@@ -3,6 +3,8 @@ import { SceneImage } from './SceneImage.js'
 import { ImageTree } from './ImageTree.js'
 
 export function createImageTree(scene, screenDimensions) {
+
+    // todo! coords need to look good on other screen sizes
     const initScale = new THREE.Vector3(screenDimensions.width, screenDimensions.width * 3/4, 1);
     const baseSceneImage = new SceneImage(
         scene,

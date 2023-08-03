@@ -23,6 +23,14 @@ export function ImageTree(root) {
         image.unhover();
     }
 
+    this.setImageOpacity = function(clickableUuid, opacity) {
+        const image = this.imageMap[clickableUuid];
+        if (image.sprite) {
+            image.sprite.material.transparent = true;
+            image.sprite.material.opacity = opacity;
+        }
+    }
+
     this.traverseTree = function() {
         const allImages = [];
         const bfsStack = [this.root];
@@ -35,14 +43,16 @@ export function ImageTree(root) {
             allImages.push(thisImage);
             Array.prototype.push.apply(bfsStack, thisImage.children);
 
-            let shouldShowImage = thisImage === this.currentImage;
+            let shouldShowImage = thisImage === this.currentImage || thisImage == this.currentImage.parent;
             let shouldBeClickable = thisImage.parent === this.currentImage;
 
             thisImage.update(shouldShowImage, shouldBeClickable);
 
-            if (shouldBeClickable && thisImage.clickable) {
+            if (thisImage.clickable) {  // todo - clean up
                 this.imageMap[thisImage.clickable.uuid] = thisImage;
-                this.clickables.push(thisImage.clickable);
+                if (shouldBeClickable) {
+                    this.clickables.push(thisImage.clickable);
+                }
             }
         }
         return allImages;
@@ -51,22 +61,14 @@ export function ImageTree(root) {
     this.traverseTree();
 }
 
-// todo: try an orthographic camera
-
-// todo: make transition smoother - add more details on how to do this
-// - keep base image in background
-// - fade new image in while zooming, instead of abrupt transition
-
-// todo: make siblings clickable = navigable with little arrows. ... change sibling structure
 // todo: add ability to zoom back up to the parent level
-
+// todo: make siblings clickable = navigable with little arrows. ... change sibling structure
 // TODO: create a readme, crediting the organizing code
 
+// todo: consider only enabling scrolling when on leaf node?
+// todo: try an orthographic camera
 // todo: there is sometimes still a weird bug where the perspective camera gets off kilter, why does that happen?
-
 // TODO: set maxDistance and minDistance it so that the close position never gets too close
-
-// todo: try three js keeping its object references
 
 // controls:
 // TODO: why is key control not enabled?

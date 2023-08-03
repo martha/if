@@ -47,6 +47,9 @@ export function SceneImage(scene, pathToImage, parent, scale, coords, label) {
     this.update = function(shouldShowImage, shouldBeClickable) {
         if (shouldShowImage) {
             scene.add(this.sprite);
+            if (this.textSprite) {
+                scene.add(this.textSprite);
+            }
         } else if (shouldBeClickable) {
             scene.add(this.textSprite);
             scene.add(this.clickable);
