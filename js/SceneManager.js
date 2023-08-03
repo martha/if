@@ -29,7 +29,11 @@ export default function SceneManager(canvas) {
     }
 
     function buildRenderer({ width, height }) {
-        const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true }); 
+        const renderer = new THREE.WebGLRenderer({ 
+            canvas: canvas, 
+            antialias: true, 
+            alpha: true,
+        }); 
         const DPR = (window.devicePixelRatio) ? window.devicePixelRatio : 1;
         renderer.setPixelRatio(DPR);
         renderer.setSize(width, height);
@@ -80,8 +84,8 @@ export default function SceneManager(canvas) {
         const child2 = new SceneImage(scene, '/IMG_3758.jpeg', baseSceneImage, [], [100, 0, 0], false);
         baseSceneImage.setChildren([child1, child2]);
 
-        // const grandchild = new SceneImage(scene, '/IMG_3997.jpeg', child2, [], [100, 0, 0]);
-        // child2.setChildren([grandchild]);
+        const grandchild = new SceneImage(scene, '/IMG_3997.jpeg', child2, [], [100, 0, 0]);
+        child2.setChildren([grandchild]);
 
         const tree = new ImageTree(baseSceneImage);
         return tree;
@@ -108,11 +112,21 @@ export default function SceneManager(canvas) {
     this.update = function() {
         raycaster.setFromCamera( pointer, camera );
 
+        // first check if there are any intersections
+        const intersects = raycaster.intersectObjects(imageTree.clickables);
+        if (intersects.length) {  // if so, set the cursor so it looks clickable on hover
+            document.body.style.cursor = "pointer";
+        } else {  // otherwise, set the cursor back to default
+            document.body.style.cursor = "default";
+        }
+
+        // get the list of objects the raycaster intersected with
+        const intersectObjects = intersects.map(i => i.object);
+
+        // iterate through each of the currently clickable objects and check if it's in the intersection
         for (const clickable of imageTree.clickables) {
             // TODO: change colors
-            // TODO: add pointer mouse
-            const intersection = raycaster.intersectObject(clickable);
-            if (intersection.length) {
+            if (intersectObjects.indexOf(clickable) >= 0) {
                 clickable.material.color.set(0xff0000);
             } else {
                 clickable.material.color.set(0x00ff00);
@@ -135,9 +149,13 @@ export default function SceneManager(canvas) {
                 camera.position.set(coords.x, coords.y, coords.z);
               })
               .onComplete(() => {
+                scene.clear();
                 imageTree.selectImage(clickedObject.uuid);
               })
               .start();
         }
     }
 }
+
+// todo: try an orthographic camera
+// todo: try three js keeping its object references

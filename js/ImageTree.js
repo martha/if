@@ -16,6 +16,10 @@ export function ImageTree(root) {
     this.traverseTree = function() {
         const allImages = [];
         const bfsStack = [this.root];
+
+        // reset both to empty
+        this.imageMap = {};
+        this.clickables = [];
         while (bfsStack.length > 0) {
             const thisImage = bfsStack.shift();
             allImages.push(thisImage);
@@ -26,7 +30,7 @@ export function ImageTree(root) {
 
             thisImage.update(shouldShowImage, shouldBeClickable);
 
-            if (thisImage.clickable) {
+            if (shouldBeClickable && thisImage.clickable) {
                 this.imageMap[thisImage.clickable.uuid] = thisImage;
                 this.clickables.push(thisImage.clickable);
             }
@@ -37,10 +41,10 @@ export function ImageTree(root) {
     this.traverseTree();
 }
 
+// TODO: make the base image fill the whole screen on init
 // todo: registration issues
-// todo: clear the three canvas
-// todo: with my current code, siblings probably shouldn't be clickable, but they still are. why?
-// todo: once that bug is tracked down, then make siblings clickable = navigable with little arrows
-// todo: make ability to zoom back up to the parent level
+// todo: there is sometimes still a weird bug where the perspective camera gets off kilter, why does that happen?
 // todo: the image tree should be in charge of telling the camera where to look?
-// todo: make sure it works with multiple layers
+
+// todo: make siblings clickable = navigable with little arrows
+// todo: make ability to zoom back up to the parent level
